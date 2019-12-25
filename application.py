@@ -45,7 +45,7 @@ def save_crop():
 		img_data = img_data[img_data.index('base64,')+len('base64,'):]
 
 		# tmp хавтаст хайчласан зургийг хадгална
-		with open(os.path.join(tmp_path, result['word'] + '.png'), "wb") as tmp:
+		with open(os.path.join(tmp_path, '%s.png' % (result['word'])), "wb") as tmp:
 			tmp.write(base64.b64decode(img_data))
 
 		return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
@@ -124,7 +124,7 @@ def generate():
 		# Зураг ба дууг нийлүүлж mp4 үүсгэх
 		mp4_file = combine(result, download_path, image_file, word_audio_file, example_audio_file)
 
-		with open(os.path.join(download_path, result['word'] + '.txt'), 'w') as f:
+		with open(os.path.join(download_path, '%s.txt' % (result['word'])), 'w') as f:
 			json.dump(result, f, ensure_ascii=False)
 
 		# json.dumps({'success':True, 'mp4':mp4_file}), 200, {'ContentType':'application/json'} 
@@ -146,7 +146,7 @@ def check_result_chinese(result):
 
 def combine(result, download_path, image_file, word_audio_file, example_audio_file):
 
-	output_file = os.path.join(download_path, result['word'] + '.mp4')
+	output_file = os.path.join(download_path, '%s.mp4' % (result['word']))
 
 	config = {
 		'image': image_file,
@@ -187,10 +187,10 @@ def combine(result, download_path, image_file, word_audio_file, example_audio_fi
 
 def generate_audio(result, download_path):
 	
-	word_audio_file = os.path.join(download_path, result['word'] + '.mp3')
-	example_audio_file = os.path.join(download_path, result['word'] + '_example.mp3')
-	tmp_word_audio_file = os.path.join(tmp_path, result['word'] + '.mp3')
-	tmp_example_audio_file = os.path.join(tmp_path, result['word'] + '_example.mp3')
+	word_audio_file = os.path.join(download_path, '%s.mp3' % (result['word']))
+	example_audio_file = os.path.join(download_path, '%s_example.mp3' % (result['word']))
+	tmp_word_audio_file = os.path.join(tmp_path, '%s.mp3' % (result['word']))
+	tmp_example_audio_file = os.path.join(tmp_path, '%s_example.mp3' % (result['word']))
 
 	if os.path.isfile(tmp_word_audio_file):
 		shutil.move(tmp_word_audio_file, word_audio_file)
@@ -233,9 +233,9 @@ def generate_audio_chinese(result, download_path):
 
 def generate_image(result, values, download_path):
 
-	tmp_tmp_file = os.path.join(tmp_path, result['word'] + '.png')
-	tmp_file = os.path.join(download_path, result['word'] + '_tmp.png')
-	image_file = os.path.join(download_path, result['word'] + '.png')
+	tmp_tmp_file = os.path.join(tmp_path, '%s.png' % (result['word']))
+	tmp_file = os.path.join(download_path, '%s_tmp.png' % (result['word']))
+	image_file = os.path.join(download_path, '%s.png' % (result['word']))
 
 	if os.path.isfile(tmp_tmp_file):
 		shutil.move(tmp_tmp_file, tmp_file)
