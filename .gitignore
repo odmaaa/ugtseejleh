@@ -3,5 +3,4 @@ data/English/**
 data/.DS_Store
 tmp/**
 virtualenv/**
-token.pickle
 app.wsgi
