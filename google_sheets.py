@@ -1,3 +1,4 @@
+#  -*- coding: utf-8 -*- 
 from __future__ import print_function
 import pickle
 import os.path
@@ -52,4 +53,5 @@ def main(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME):
         return data
         
 if __name__ == '__main__':
-    main()
+    data = main('14mY0zLrTJRPEJTprBen3FOqw1MTjM875qHiL_YHl0TA','新HSK5000词2!A:O')
+    print(data)
