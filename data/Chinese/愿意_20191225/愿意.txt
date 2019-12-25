@@ -1,0 +1,1 @@
+{"lang": "Chinese", "word": "愿意", "pos": "动", "pron": "yuànyì", "mon": "Хүсэх", "example_pron": "wèi lái yī nián nǐ yuàn yì zuò nǎ xiē shì qing ", "example": "未来一年你愿意做哪些事情？", "example_mon": "Ирэх онд та юу хийхийг хүсч байна вэ?", "audioInput": "", "audioExampleInput": "", "shadow": "37"}

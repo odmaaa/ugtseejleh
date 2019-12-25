@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Үг цээжлэх</title>	
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--===============================================================================================-->
+	<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icons/favicon.ico') }}"/>
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/cropper.css') }}">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fonts/font-awesome-4.7.0/css/font-awesome.min.css') }}">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/animate/animate.css') }}">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/css-hamburgers/hamburgers.min.css') }}">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/select2/select2.min.css') }}">
+<!--===============================================================================================-->
+	<!-- <link rel="stylesheet" type="text/css" href="css/util.css"> -->
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/util.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+<!--===============================================================================================-->
+</head>
+<body>
+
+	<div class="bg-contact2" style="background-image: url({{ url_for('static', filename='images/bg-01.jpg') }});">
+		<div class="container-contact2">
+			<div class="wrap-contact2">
+				<!-- <form class="contact2-form validate-form"> -->
+
+				<span class="contact2-form-title">
+					Үг цээжлэх
+				</span>
+
+				<form action="http://localhost:5000/generate" method = "POST" enctype="multipart/form-data">
+					
+					<div style="float: center;">
+						<p style="display: inline;" >Хэл сонгох:</p>
+							<select name="lang" id="lang">
+							  <option value="English">Англи</option>
+							  <option value="Japanese">Япон</option>
+							  <option selected value="Chinese">Хятад</option>
+							  <option value="German">Герман</option>
+							</select>
+					</div>
+					<br> 
+				
+					<p>Үг: <input type="text" name="word" class="wrap-input2"></p>
+					<p>Үгсийн аймаг: <input type="text" name="pos" class="wrap-input2"></p>
+					<p>Галиг: <input type="text" name="pron" class="wrap-input2"></p>
+					<p>Орчуулга: <input type="text" name="mon" class="wrap-input2"></p>
+					<p>Жишээний галиг: <input type="text" name="example_pron" class="wrap-input2"></p>
+					<p>Жишээ: <input type="text" name="example" class="wrap-input2"></p>
+					<p>Жишээний орчуулга: <input type="text" name="example_mon" class="wrap-input2"></p>
+					<p>Үгийн дуудлага: <input type="file" id="audioInput" accept="audio/*" class="wrap-input2" name="audioInput"></p>
+					<p>Жишээний дуудлага: <input type="file" id="audioExampleInput" accept="audio/*" class="wrap-input2" name="audioExampleInput"></p>
+					<p>Зургийн сүүдэр: <input type="number" name="shadow" class="wrap-input2" value="37"></p>
+					<p>Зураг: <input type="file" id="fileInput" accept="image/*" / class="wrap-input2" name="fileInput"></p>
+					<div id="canvas-container">
+					    <canvas id="canvas">
+						    Your browser does not support the HTML5 canvas element.
+					    </canvas>
+					    <br>
+						<input type="button" id="btnCrop" value="Crop" style="border: 1px solid gray;" /> 
+						<input type="button" id="btnRestore" value="Restore" style="border: 1px solid gray;" /> 
+					</div>		
+					<div id="result"></div>
+
+
+					<!-- <input type="submit" value="Submit"> -->
+
+					<div class="container-contact2-form-btn">
+						<div class="wrap-contact2-form-btn">
+							<div class="contact2-form-bgbtn"></div>
+							<button class="contact2-form-btn">
+								Submit
+							</button> 
+						</div>
+					</div>
+
+				</form>
+				<p>Caption: <textarea id="caption" style="width: 100%;"></textarea></p>
+			</div>
+		</div>
+	</div>
+
+
+<!--===============================================================================================-->
+	<script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+	<script src="{{ url_for('static', filename='vendor/jquery/jquery-3.2.1.min.js') }}"></script>
+<!--===============================================================================================-->
+	<script src="{{ url_for('static', filename='vendor/bootstrap/js/popper.js') }}"></script>
+	<script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.min.js') }}"></script>
+<!--===============================================================================================-->
+	<script src="{{ url_for('static', filename='vendor/select2/select2.min.js') }}"></script>
+<!--===============================================================================================-->
+	<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<!--===============================================================================================-->
+	<script src="{{ url_for('static', filename='js/cropper.js') }}"></script>
+
+	<script>
+
+	function hideSome(){
+		$('.container-contact2').show().find('*').children().show();
+
+		var lang = $("#lang").val();
+		if (lang=="Chinese"){
+			$("input[name='example_pron']").parent().hide();
+			$("input[name='audioInput']").parent().hide();
+			$("input[name='audioExampleInput']").parent().hide();
+		} else if(lang=="English"){
+			$("input[name='example_pron']").parent().hide();
+			$("input[name='audioExampleInput']").parent().hide();
+		} else if(lang=="Japanese"){
+			$("input[name='audioExampleInput']").parent().hide();
+		}
+	}
+
+	hideSome();
+	$("#lang").change(hideSome);
+
+	$("input[name='word']").on("change", function(){
+		var lang = $("#lang").val();
+		var word = $("input[name='word']").val();
+	    $.ajax({
+	        url: "http://localhost:5000/read-xls",
+	        type: "POST",
+	        dataType: "json",
+	        contentType: 'application/json; charset=utf-8',
+	        data: JSON.stringify({lang: lang, word: word}),
+	        success: function (result) {
+	        	var row = result['row'][0]
+	        	for (var key in row){
+	        		$("input[name='"+key+"']").val(row[key]);
+	        		if (key == "caption"){
+	        			$("#caption").text(row['caption']);
+	        		}
+				}
+
+	        },
+	        error: function (xhr, ajaxOptions, thrownError) {
+		        console.log(xhr.status);
+		        console.log(thrownError);
+	        }
+	    });
+	})
+
+	var canvas  = $("#canvas"),
+	context = canvas.get(0).getContext("2d"),
+	$result = $('#result');
+
+	$('#fileInput').on( 'change', function(){
+		if (this.files && this.files[0]) {
+			if ( this.files[0].type.match(/^image\//) ) {
+				var reader = new FileReader();
+				reader.onload = function(evt) {
+					var img = new Image();
+					img.onload = function() {
+
+						context.canvas.height = img.height;
+						context.canvas.width  = img.width;
+
+						context.drawImage(img, 0, 0);
+						var cropper = canvas.cropper({ aspectRatio: 4 / 4 });
+
+						$('#btnCrop').click(function() {
+							// Get a string base 64 data url
+							var croppedImageDataURL = canvas.cropper('getCroppedCanvas').toDataURL("image/png"); 
+							var word = $("input[name='word']").val();
+
+						    $.ajax({
+						        url: "http://localhost:5000/save-crop",
+						        type: "POST",
+						        dataType: "json",
+						        contentType: 'application/json; charset=utf-8',
+						        data: JSON.stringify({imgBase64: croppedImageDataURL, word: word}),
+						        success: function (result) {
+						        	$("#canvas-container").hide();
+						        	$result.empty();
+						        	$result.append( $('<img>').attr('width', '200px').attr('height', '200px').attr('src', croppedImageDataURL)).attr('align', 'middle');
+						            $result.append( $('<p>Saved</p>'));
+						        },
+						        error: function (xhr, ajaxOptions, thrownError) {
+							        console.log(xhr.status);
+							        console.log(thrownError);
+						        }
+						    });
+
+						});
+						$('#btnRestore').click(function() {
+							canvas.cropper('reset');
+							$result.empty();
+						});
+					};
+					img.src = evt.target.result;
+				};
+				reader.readAsDataURL(this.files[0]);
+			}
+			else {
+				alert("Invalid file type! Please select an image file.");
+			}
+		}
+		else {
+			alert('No file(s) selected.');
+		}
+	});
+
+	function getBase64(file) {
+	  return new Promise((resolve, reject) => {
+	    const reader = new FileReader();
+	    reader.readAsDataURL(file);
+	    reader.onload = () => {
+	      let encoded = reader.result.toString().replace(/^data:(.*,)?/, '');
+	      if ((encoded.length % 4) > 0) {
+	        encoded += '='.repeat(4 - (encoded.length % 4));
+	      }
+	      resolve(encoded);
+	    };
+	    reader.onerror = error => reject(error);
+	  });
+	}
+
+	$('#audioInput').on( 'change', function(){
+		var this_id = $(this).attr("id");
+		getBase64(this.files[0]).then(function(response){
+			var word = $("input[name='word']").val();
+
+		    $.ajax({
+		        url: "http://localhost:5000/save-audio",
+		        type: "POST",
+		        dataType: "json",
+		        contentType: 'application/json; charset=utf-8',
+		        data: JSON.stringify({audioBase64: response, word: word, this_id: this_id}),
+		        success: function (result) {
+		        	console.log("done");
+		        },
+		        error: function (xhr, ajaxOptions, thrownError) {
+			        console.log(xhr.status);
+			        console.log(thrownError);
+		        }
+		    });
+		});
+	 });
+
+	</script>
+
+</body>
+</html>

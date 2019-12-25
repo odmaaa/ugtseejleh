@@ -1,0 +1,68 @@
+{
+  "Chinese": {
+  	"sizes":{
+	  	"word_size": 220,
+	  	"pron_size": 100,  
+	  	"mon_size": 120,  
+	  	"example_pron_size": 65,  
+	  	"example_size": 90,  
+	  	"example_mon_size": 70   		
+  	},
+  	"fonts":{
+      "word_font": "static/fonts/simhei.ttf",
+      "pron_font": "static/fonts/simhei.ttf",  
+      "mon_font": "static/fonts/SF-Pro-Display-Medium.otf",
+      "example_pron_font": "static/fonts/SF-Pro-Display-Regular.otf",
+      "example_font": "static/fonts/simhei.ttf",  
+      "example_mon_font": "static/fonts/SF-Pro-Display-Regular.otf"
+  	},
+    "default_space": 23
+  },
+  "English": {
+  	"sizes":{
+	  	"word_size": 220,
+	  	"pron_size": 100,  
+	  	"mon_size": 130,  
+	  	"example_pron_size": 74,  
+	  	"example_size": 74,  
+	  	"example_mon_size": 74   		
+  	},
+  	"fonts":{
+      "word_font": "static/fonts/HelveticaNeue Medium.ttf",
+  		"pron_font": "static/fonts/HelveticaNeue.ttc",
+      "mon_font": "static/fonts/SF-Pro-Display-Medium.otf",
+      "example_font": "static/fonts/SF-Pro-Display-RegularItalic.otf",
+      "example_pron_font": "static/fonts/SF-Pro-Display-Regular.otf",
+      "example_mon_font": "static/fonts/SF-Pro-Display-Regular.otf"
+  	},
+    "default_space": 23
+  },
+  "Japanese": {
+  	"sizes":{
+	  	"word_size": 220,
+	  	"pron_size": 100,  
+	  	"mon_size": 120,  
+	  	"example_pron_size": 65,  
+	  	"example_size": 90,  
+	  	"example_mon_size": 70   		
+  	},
+  	"fonts":{
+  		"": ""
+  	},
+    "default_space": 23
+  },
+  "German": {
+   	"sizes":{
+	  	"word_size": 220,
+	  	"pron_size": 100,  
+	  	"mon_size": 120,  
+	  	"example_pron_size": 65,  
+	  	"example_size": 90,  
+	  	"example_mon_size": 70   		
+  	},
+  	"fonts":{
+  		"": ""
+  	},
+    "default_space": 23
+  }
+}

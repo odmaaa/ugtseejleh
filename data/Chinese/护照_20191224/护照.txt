@@ -1,0 +1,1 @@
+{"lang": "Chinese", "word": "护照", "pos": "名", "mon": "Пасспорт", "example": "蒙古游客可在巴西境内免签停留不超过90天。", "example_mon": "Монголын жуулчид Бразил улсад 90 хүртэл хоног визгүй амьдрах боломжтой.", "shadow": "37", "pron": "hùzhào", "example_pron": "měng gǔ yóu kè kě zài bā xī jìng nèi miǎn qiān tíng liú bù chāo guò 9 0 tiān "}

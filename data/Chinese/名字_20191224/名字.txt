@@ -1,0 +1,1 @@
+{"lang": "Chinese", "word": "名字", "pos": "名", "pron": "míngzi", "mon": "Нэр", "example_pron": "zhōng guó zhòng míng zuì duō de míng zi shì zhāng wěi ", "example": "中国重名最多的名字是张伟。", "example_mon": "Хятадын хамгийн их давхацсан нэр бол Жан Вэй юм.", "audioInput": "", "audioExampleInput": "", "shadow": "37"}

@@ -1,0 +1,1 @@
+{"lang": "Chinese", "word": "商店", "pos": "名", "pron": "shāngdiàn", "mon": "Дэлгүүр", "example_pron": "píng guǒ yìng yòng shāng diàn yǒu xǔ duō A P P ", "example": "苹果应用商店有许多APP。", "example_mon": "Apple App Store дэлгүүр нь маш их аппликэйшнтэй.", "audioInput": "", "audioExampleInput": "", "shadow": "37"}
