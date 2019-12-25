@@ -35,7 +35,7 @@
 					Үг цээжлэх
 				</span>
 
-				<form action="http://localhost:5000/generate" method = "POST" enctype="multipart/form-data">
+				<form action="/generate" method = "POST" enctype="multipart/form-data">
 					
 					<div style="float: center;">
 						<p style="display: inline;" >Хэл сонгох:</p>
@@ -126,7 +126,7 @@
 		var lang = $("#lang").val();
 		var word = $("input[name='word']").val();
 	    $.ajax({
-	        url: "http://localhost:5000/read-xls",
+	        url: "/read-xls",
 	        type: "POST",
 	        dataType: "json",
 	        contentType: 'application/json; charset=utf-8',
@@ -172,7 +172,7 @@
 							var word = $("input[name='word']").val();
 
 						    $.ajax({
-						        url: "http://localhost:5000/save-crop",
+						        url: "/save-crop",
 						        type: "POST",
 						        dataType: "json",
 						        contentType: 'application/json; charset=utf-8',
@@ -229,7 +229,7 @@
 			var word = $("input[name='word']").val();
 
 		    $.ajax({
-		        url: "http://localhost:5000/save-audio",
+		        url: "/save-audio",
 		        type: "POST",
 		        dataType: "json",
 		        contentType: 'application/json; charset=utf-8',
