@@ -5,20 +5,20 @@
       "RANGE_NAME": "新HSK5000词2!A:O"
     },
   	"sizes":{
-	  	"word_size": 220,
-	  	"pron_size": 100,  
-	  	"mon_size": 120,  
-	  	"example_pron_size": 65,  
-	  	"example_size": 90,  
-	  	"example_mon_size": 70   		
+	  	"word": 220,
+	  	"pron": 100,  
+	  	"mon": 120,  
+	  	"example_pron": 65,  
+	  	"example": 90,  
+	  	"example_mon": 70   		
   	},
   	"fonts":{
-      "word_font": "static/fonts/simhei.ttf",
-      "pron_font": "static/fonts/simhei.ttf",  
-      "mon_font": "static/fonts/SF-Pro-Display-Medium.otf",
-      "example_pron_font": "static/fonts/SF-Pro-Display-Regular.otf",
-      "example_font": "static/fonts/simhei.ttf",  
-      "example_mon_font": "static/fonts/SF-Pro-Display-Regular.otf"
+      "word": "static/fonts/simhei.ttf",
+      "pron": "static/fonts/simhei.ttf",  
+      "mon": "static/fonts/SF-Pro-Display-Medium.otf",
+      "example_pron": "static/fonts/SF-Pro-Display-Regular.otf",
+      "example": "static/fonts/simhei.ttf",  
+      "example_mon": "static/fonts/SF-Pro-Display-Regular.otf"
   	},
     "default_space": 23
   },
@@ -28,20 +28,20 @@
       "RANGE_NAME": "新HSK5000词2!A:O"
     },
   	"sizes":{
-	  	"word_size": 220,
-	  	"pron_size": 100,  
-	  	"mon_size": 130,  
-	  	"example_pron_size": 74,  
-	  	"example_size": 74,  
-	  	"example_mon_size": 74   		
+	  	"word": 220,
+	  	"pron": 100,  
+	  	"mon": 130,  
+	  	"example_pron": 74,  
+	  	"example": 74,  
+	  	"example_mon": 74   		
   	},
   	"fonts":{
-      "word_font": "static/fonts/HelveticaNeue Medium.ttf",
-  		"pron_font": "static/fonts/HelveticaNeue.ttc",
-      "mon_font": "static/fonts/SF-Pro-Display-Medium.otf",
-      "example_font": "static/fonts/SF-Pro-Display-RegularItalic.otf",
-      "example_pron_font": "static/fonts/SF-Pro-Display-Regular.otf",
-      "example_mon_font": "static/fonts/SF-Pro-Display-Regular.otf"
+      "word": "static/fonts/HelveticaNeue Medium.ttf",
+  		"pron": "static/fonts/HelveticaNeue.ttc",
+      "mon": "static/fonts/SF-Pro-Display-Medium.otf",
+      "example": "static/fonts/SF-Pro-Display-RegularItalic.otf",
+      "example_pron": "static/fonts/SF-Pro-Display-Regular.otf",
+      "example_mon": "static/fonts/SF-Pro-Display-Regular.otf"
   	},
     "default_space": 23
   },
@@ -51,12 +51,12 @@
       "RANGE_NAME": "新HSK5000词2!A:O"
     },
   	"sizes":{
-	  	"word_size": 220,
-	  	"pron_size": 100,  
-	  	"mon_size": 120,  
-	  	"example_pron_size": 65,  
-	  	"example_size": 90,  
-	  	"example_mon_size": 70   		
+	  	"word": 220,
+	  	"pron": 100,  
+	  	"mon": 120,  
+	  	"example_pron": 65,  
+	  	"example": 90,  
+	  	"example_mon": 70   		
   	},
   	"fonts":{
   		"": ""
@@ -69,12 +69,12 @@
       "RANGE_NAME": "新HSK5000词2!A:O"
     },
    	"sizes":{
-	  	"word_size": 220,
-	  	"pron_size": 100,  
-	  	"mon_size": 120,  
-	  	"example_pron_size": 65,  
-	  	"example_size": 90,  
-	  	"example_mon_size": 70   		
+	  	"word": 220,
+	  	"pron": 100,  
+	  	"mon": 120,  
+	  	"example_pron": 65,  
+	  	"example": 90,  
+	  	"example_mon": 70   		
   	},
   	"fonts":{
   		"": ""

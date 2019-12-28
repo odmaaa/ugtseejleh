@@ -7,6 +7,7 @@ import shutil
 import base64 
 import datetime
 import textwrap
+import subprocess
 import pandas as pd
 import google_sheets
 import ChineseTone
@@ -119,8 +120,18 @@ def generate():
 		if not os.path.isfile(word_audio_file):
 			return json.dumps({"success":False, "error":"Please input the audio file"}), 500, {"ContentType":"application/json"} 
 
+		output_file = "{}.mp4".format(result["word"])
+		output_file = os.path.join(word_download_path, output_file)
+
+		file_config = {
+			"image": image_file,
+			"word_audio": word_audio_file,
+			"example_audio": example_audio_file,
+			"output": output_file,
+		}
+
 		# Зураг ба дууг нийлүүлж mp4 үүсгэх
-		mp4_file = combine(result, word_download_path, image_file, word_audio_file, example_audio_file)
+		mp4_file = combine(file_config)
 
 		word_file = "{}.txt".format(result["word"])
 		word_file = os.path.join(word_download_path, word_file)		
@@ -144,47 +155,40 @@ def check_result_chinese(result):
 
 	return result
 
-def combine(result, word_download_path, image_file, word_audio_file, example_audio_file):
+def combine(file_config):
 
-	output_file = "{}.mp4".format(result["word"])
-	output_file = os.path.join(word_download_path, output_file)
+	if os.path.isfile(file_config["output"]):
+		os.remove(file_config["output"])
 
-	config = {
-		"image": image_file,
-		"word_audio": word_audio_file,
-		"example_audio": example_audio_file,
-		"output": output_file,
-	}
-
-	if os.path.isfile(output_file):
-		os.remove(output_file)
-
-	if os.path.isfile(example_audio_file):
-		os.system("""
+	if os.path.isfile(file_config["example_audio"]):
+		command = """
 			ffmpeg -loop 1 \
 				   -i {image} \
-				   -i "concat:{word_audio}|{example_audio}" \
+				   -i concat:{word_audio}|{example_audio} \
 				   -crf 1 \
 				   -t 10 \
 				   -s 2048x2048 \
 				   -vcodec libx264 \
 				   -acodec aac \
 				   -pix_fmt yuv420p \
-				   {output}""".format(**config))
+				   {output}"""
 	else:
-		os.system("""
+		command = """
 			ffmpeg -loop 1 \
 				   -i {image} \
-				   -i "concat:{word_audio}|{word_audio}|{word_audio}" \
+				   -i concat:{word_audio}|{word_audio}|{word_audio} \
 				   -crf 1 \
 				   -t 10 \
 				   -s 2048x2048 \
 				   -vcodec libx264 \
 				   -acodec aac \
 				   -pix_fmt yuv420p \
-				   {output}""".format(**config))
+				   {output}"""
 
-	return output_file.split("/")[-1]
+	subprocess.run(command.format(**file_config).split())
+	# os.system(command.format(**file_config))
+
+	return file_config["output"].split("/")[-1]
 
 def generate_audio(result, word_download_path):
 	
@@ -261,32 +265,27 @@ def add_text(result, config, img):
 	fonts = config[result["lang"]]["fonts"]
 	space = config[result["lang"]]["default_space"]
 
-	font_word = ImageFont.truetype(fonts["word_font"], int(sizes["word_size"]))
-	font_pron = ImageFont.truetype(fonts["pron_font"], int(sizes["pron_size"]))
-	font_mon = ImageFont.truetype(fonts["mon_font"], int(sizes["mon_size"])) 
-	font_example_pron = ImageFont.truetype(fonts["example_pron_font"], int(sizes["example_pron_size"]))
-	font_example = ImageFont.truetype(fonts["example_font"], int(sizes["example_size"])) 
-	font_example_mon = ImageFont.truetype(fonts["example_mon_font"], int(sizes["example_mon_size"]))
-
-	if result["lang"]=="Chinese":
+	if result["lang"] in ["Chinese", "Japanese"]:
 		config = [
-				  (0,317,result["word"],font_word),
-				  (0,582,"[%s] /%s/" % (result["pos"],result["pron"]),font_pron),
-				  (0,826,result["mon"],font_mon),
-				  (80,1253,result["example_pron"],font_example_pron),
-				  (80,1253+int(sizes["example_pron_size"])+space,result["example"],font_example),
-				  (80,1253+int(sizes["example_pron_size"])+space+int(sizes["example_size"])+space,result["example_mon"],font_example_mon)]
+				  (0,317,result["word"],fonts["word"],sizes["word"]),
+				  (0,582,"[%s] /%s/" % (result["pos"],result["pron"]),fonts["pron"],sizes["pron"]),
+				  (0,826,result["mon"],fonts["mon"],sizes["mon"]),
+				  (80,1253,result["example_pron"],fonts["example_pron"],sizes["example_pron"]),
+				  (80,1253+sizes["example_pron"]+space,result["example"],fonts["example"],sizes["example"]),
+				  (80,1253+sizes["example_pron"]+space+sizes["example"]+space,result["example_mon"],fonts["example_mon"],sizes["example_mon"])]
 
-	elif result["lang"]=="English":
+	elif result["lang"] in ["English", "German"]:
 		config = [
-				  (0,317,result["word"],font_word),
-				  (0,582,"[%s]   /%s/" % (result["pos"],result["pron"]),font_pron),
-				  (0,826,result["mon"],font_mon),
-				  (80,1253,result["example"],font_example),
-				  (80,1253+int(sizes["example_pron_size"])+space,result["example_mon"],font_example_mon)]
+				  (0,317,result["word"],fonts["word"],sizes["word"]),
+				  (0,582,"[%s]   /%s/" % (result["pos"],result["pron"]),fonts["pron"],sizes["pron"]),
+				  (0,826,result["mon"],fonts["mon"],sizes["mon"]),
+				  (80,1253,result["example"],fonts["example"],sizes["example"]),
+				  (80,1253+sizes["example"]+space,result["example_mon"],fonts["example_mon"],sizes["example_mon"])]
 
 	addition = 0
-	for x, y, text, font in config:
+	for x, y, text, font_file, size in config:
+
+		font = ImageFont.truetype(font_file, size)
 
 		w, h = draw.textsize(text, font=font)
 
@@ -300,13 +299,14 @@ def add_text(result, config, img):
 			cnt += 1
 
 		last_w, last_h = draw.textsize(texts[-1], font=font)
-		if last_w<50:
-			n_font = font.size
+		if last_w<300:
+			n_size = size
 			w, h = draw.textsize(text, font=font)
 			while w>(2048-80*2):
-				font.size = n_font
+				font = ImageFont.truetype(font_file, n_size)
 				w, h = draw.textsize(text, font=font)
-				n_font -= 1
+				n_size -= 1
+			texts = [text]
 
 		if len(texts)>1:
 			for cnt, t in enumerate(texts):
