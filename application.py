@@ -16,7 +16,16 @@ from flask import Flask, redirect, url_for, request, render_template, send_from_
 
 app = Flask(__name__)
 
-tmp_path = 'tmp/'
+
+abs_path = os.path.dirname(os.path.abspath(__file__))
+
+config_file = os.path.join(abs_path, 'custom_values.json')
+with open(config_file, 'r') as f:
+	config = json.loads(f.read())
+
+tmp_path = os.path.join(abs_path, config['config']['tmp_path'])
+download_path = os.path.join(abs_path, config['config']['download_path'])
+
 
 # Нүүр хуудас
 @app.route('/')
@@ -81,6 +90,7 @@ def read_xls():
 			df = google_sheets.main(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME)
 			for index, row in df.loc[df['word'] == result['word']].iterrows():
 				return json.dumps({'success':True,'row':[row.to_dict()]}), 200, {'ContentType':'application/json'} 
+				
 		elif result['lang'] == 'English':
 			SAMPLE_SPREADSHEET_ID = '14mY0zLrTJRPEJTprBen3FOqw1MTjM875qHiL_YHl0TA'
 			SAMPLE_RANGE_NAME = '新HSK5000词2!A:O'
@@ -105,30 +115,26 @@ def generate():
 		today = datetime.datetime.now().strftime('%Y%m%d') 
 		
 		# Тухайн үгэнд зориулж шинэ хавтас үүсгэх
-		download_path = 'data/%s/%s_%s' % (result['lang'], result['word'], today)
-		if not os.path.isdir(download_path):
-			os.mkdir(download_path)
-
-		# Тухайн хэлний зориулалтын фонт, хэмжээг авах
-		with open('custom_values.json', 'r') as r:
-			values = json.loads(r.read())
+		word_download_path = os.path.join(download_path, '%s/%s_%s' % (result['lang'], result['word'], today))
+		if not os.path.isdir(word_download_path):
+			os.mkdir(word_download_path)
 
 		# Зураг янзлах
-		image_file = generate_image(result, values, download_path)
+		image_file = generate_image(result, config, word_download_path)
 
 		# Дуу янзлах
-		word_audio_file, example_audio_file = generate_audio(result, download_path)
+		word_audio_file, example_audio_file = generate_audio(result, word_download_path)
 		if not os.path.isfile(word_audio_file):
 			return json.dumps({'success':False, 'error':'Please input the audio file'}), 500, {'ContentType':'application/json'} 
 
 		# Зураг ба дууг нийлүүлж mp4 үүсгэх
-		mp4_file = combine(result, download_path, image_file, word_audio_file, example_audio_file)
+		mp4_file = combine(result, word_download_path, image_file, word_audio_file, example_audio_file)
 
-		with open(os.path.join(download_path, '%s.txt' % (result['word'])), 'w') as f:
+		with open(os.path.join(word_download_path, '%s.txt' % (result['word'])), 'w') as f:
 			json.dump(result, f, ensure_ascii=False)
 
 		# json.dumps({'success':True, 'mp4':mp4_file}), 200, {'ContentType':'application/json'} 
-		return send_from_directory(download_path, mp4_file, as_attachment=True)
+		return send_from_directory(word_download_path, mp4_file, as_attachment=True)
 
 def check_result_chinese(result):
 
@@ -144,9 +150,9 @@ def check_result_chinese(result):
 
 	return result
 
-def combine(result, download_path, image_file, word_audio_file, example_audio_file):
+def combine(result, word_download_path, image_file, word_audio_file, example_audio_file):
 
-	output_file = os.path.join(download_path, '%s.mp4' % (result['word']))
+	output_file = os.path.join(word_download_path, '%s.mp4' % (result['word']))
 
 	config = {
 		'image': image_file,
@@ -185,10 +191,10 @@ def combine(result, download_path, image_file, word_audio_file, example_audio_fi
 
 	return output_file.split('/')[-1]
 
-def generate_audio(result, download_path):
+def generate_audio(result, word_download_path):
 	
-	word_audio_file = os.path.join(download_path, '%s.mp3' % (result['word']))
-	example_audio_file = os.path.join(download_path, '%s_example.mp3' % (result['word']))
+	word_audio_file = os.path.join(word_download_path, '%s.mp3' % (result['word']))
+	example_audio_file = os.path.join(word_download_path, '%s_example.mp3' % (result['word']))
 	tmp_word_audio_file = os.path.join(tmp_path, '%s.mp3' % (result['word']))
 	tmp_example_audio_file = os.path.join(tmp_path, '%s_example.mp3' % (result['word']))
 
@@ -199,11 +205,11 @@ def generate_audio(result, download_path):
 
 	if not os.path.isfile(word_audio_file):
 		if result['lang']=='Chinese':
-			word_audio_file, example_audio_file = generate_audio_chinese(result, download_path)
+			word_audio_file, example_audio_file = generate_audio_chinese(result, word_download_path)
 	
 	return word_audio_file, example_audio_file
 
-def generate_audio_chinese(result, download_path):
+def generate_audio_chinese(result, word_download_path):
 
 	client = AipSpeech('17300058', 'G11hfH4f7Gzu8xSKdOUi5nGz', 'GGaF2RZfQGw3GdsMSbnP9oyTG1reMeqz')
 
@@ -213,7 +219,7 @@ def generate_audio_chinese(result, download_path):
 	# per = random.choice([1,0,3,4,5,106,110,111,103])
 	for per in [1,0,3,5,106][:1]: #,4,110,111,103]:
 		try:
-			word_audio_file = os.path.join(download_path, '%s_%s_baidu.mp3' % (result['word'], per))
+			word_audio_file = os.path.join(word_download_path, '%s_%s_baidu.mp3' % (result['word'], per))
 			audio_result = client.synthesis(result['word'],'zh',1,{'vol':10,'spd':4,'pit':5,'per':per})
 			with open(word_audio_file, 'wb') as f:
 				f.write(audio_result)
@@ -222,7 +228,7 @@ def generate_audio_chinese(result, download_path):
 
 	for per in [1,0,3,5,106][:1]: #,4,110,111,103]:
 		try:
-			example_audio_file = os.path.join(download_path, '%s_example_%s_baidu.mp3' % (result['word'], per))
+			example_audio_file = os.path.join(word_download_path, '%s_example_%s_baidu.mp3' % (result['word'], per))
 			audio_result = client.synthesis(result['example'],'zh',1,{'vol':10,'spd':4,'pit':5,'per':per})
 			with open(example_audio_file, 'wb') as f:
 				f.write(audio_result)
@@ -231,11 +237,11 @@ def generate_audio_chinese(result, download_path):
 
 	return word_audio_file, example_audio_file
 
-def generate_image(result, values, download_path):
+def generate_image(result, config, word_download_path):
 
 	tmp_tmp_file = os.path.join(tmp_path, '%s.png' % (result['word']))
-	tmp_file = os.path.join(download_path, '%s_tmp.png' % (result['word']))
-	image_file = os.path.join(download_path, '%s.png' % (result['word']))
+	tmp_file = os.path.join(word_download_path, '%s_tmp.png' % (result['word']))
+	image_file = os.path.join(word_download_path, '%s.png' % (result['word']))
 
 	if os.path.isfile(tmp_tmp_file):
 		shutil.move(tmp_tmp_file, tmp_file)
@@ -249,7 +255,7 @@ def generate_image(result, values, download_path):
 	img = enhancer.enhance(1 - 0.01 * int(result['shadow']))
 
 	# Зураг дээр текст хэлбэрийн агуулгыг нэмэх
-	img = add_text(result, values, img)
+	img = add_text(result, config, img)
 
 	# Зураг дээр logo нэмэх
 	logo = Image.open('images/logo.png')
@@ -260,14 +266,14 @@ def generate_image(result, values, download_path):
 
 	return image_file
 
-def add_text(result, values, img):
+def add_text(result, config, img):
 	
 	draw = ImageDraw.Draw(img)
 	
-	sizes = values[result['lang']]['sizes']
-	fonts = values[result['lang']]['fonts']
-	space = values[result['lang']]['default_space']
-	# spaces = values[result['lang']]['spaces']
+	sizes = config[result['lang']]['sizes']
+	fonts = config[result['lang']]['fonts']
+	space = config[result['lang']]['default_space']
+	# spaces = config[result['lang']]['spaces']
 
 	font_word = ImageFont.truetype(fonts['word_font'], int(sizes['word_size']))
 	font_pron = ImageFont.truetype(fonts['pron_font'], int(sizes['pron_size']))

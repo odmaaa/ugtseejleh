@@ -1,4 +1,8 @@
 {
+  "config": {
+   "tmp_path": "tmp", 
+   "download_path": "data"
+ },
   "Chinese": {
   	"sizes":{
 	  	"word_size": 220,
