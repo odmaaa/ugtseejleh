@@ -1,9 +1,9 @@
 {
-  "config": {
-   "tmp_path": "tmp", 
-   "download_path": "data"
- },
   "Chinese": {
+    "sheets":{
+      "SPREADSHEET_ID": "14mY0zLrTJRPEJTprBen3FOqw1MTjM875qHiL_YHl0TA",
+      "RANGE_NAME": "新HSK5000词2!A:O"
+    },
   	"sizes":{
 	  	"word_size": 220,
 	  	"pron_size": 100,  
@@ -23,6 +23,10 @@
     "default_space": 23
   },
   "English": {
+    "sheets":{
+      "SPREADSHEET_ID": "14mY0zLrTJRPEJTprBen3FOqw1MTjM875qHiL_YHl0TA",
+      "RANGE_NAME": "新HSK5000词2!A:O"
+    },
   	"sizes":{
 	  	"word_size": 220,
 	  	"pron_size": 100,  
@@ -42,6 +46,10 @@
     "default_space": 23
   },
   "Japanese": {
+    "sheets":{
+      "SPREADSHEET_ID": "14mY0zLrTJRPEJTprBen3FOqw1MTjM875qHiL_YHl0TA",
+      "RANGE_NAME": "新HSK5000词2!A:O"
+    },
   	"sizes":{
 	  	"word_size": 220,
 	  	"pron_size": 100,  
@@ -56,6 +64,10 @@
     "default_space": 23
   },
   "German": {
+    "sheets":{
+      "SPREADSHEET_ID": "14mY0zLrTJRPEJTprBen3FOqw1MTjM875qHiL_YHl0TA",
+      "RANGE_NAME": "新HSK5000词2!A:O"
+    },
    	"sizes":{
 	  	"word_size": 220,
 	  	"pron_size": 100,  

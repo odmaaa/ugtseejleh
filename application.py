@@ -9,113 +9,105 @@ import datetime
 import textwrap
 import pandas as pd
 import google_sheets
-from PIL import Image, ImageFont, ImageDraw, ImageEnhance
 import ChineseTone
 from aip import AipSpeech
+from PIL import Image, ImageFont, ImageDraw, ImageEnhance
 from flask import Flask, redirect, url_for, request, render_template, send_from_directory
 
 app = Flask(__name__)
 
-
-abs_path = os.path.dirname(os.path.abspath(__file__))
-
-config_file = os.path.join(abs_path, 'custom_values.json')
-with open(config_file, 'r') as f:
+with open("custom_values.json", "r") as f:
 	config = json.loads(f.read())
 
-tmp_path = os.path.join(abs_path, config['config']['tmp_path'])
-download_path = os.path.join(abs_path, config['config']['download_path'])
-
+tmp_path = "tmp"
+download_path = "data"
 
 # Нүүр хуудас
-@app.route('/')
+@app.route("/")
 def index():
-   return render_template('index.html')
+   return render_template("index.html")
    
 # Бүртгэлийн хуудас
-@app.route('/login',methods = ['POST', 'GET'])
+@app.route("/login",methods = ["POST", "GET"])
 def login():
-	if request.method == 'POST':
-		user = request.form['nm']
-		return redirect(url_for('success',name = user))
+	if request.method == "POST":
+		user = request.form["nm"]
+		return redirect(url_for("success",name = user))
 	else:
-		user = request.args.get('nm')
-		return redirect(url_for('success',name = user))
+		user = request.args.get("nm")
+		return redirect(url_for("success",name = user))
 
 # Хайчласан зургийг хадгалах, base64-с png болгох
-@app.route('/save-crop',methods = ['POST', 'GET'])
+@app.route("/save-crop",methods = ["POST", "GET"])
 def save_crop():
 
-	if request.method == 'POST':
+	if request.method == "POST":
 
 		result = request.get_json(silent=True, force=True)
 
-		img_data = result['imgBase64']
-		img_data = img_data[img_data.index('base64,')+len('base64,'):]
+		img_data = result["imgBase64"]
+		img_data = img_data[img_data.index("base64,")+len("base64,"):]
 
-		# tmp хавтаст хайчласан зургийг хадгална
-		with open(os.path.join(tmp_path, '%s.png' % (result['word'])), "wb") as tmp:
+		# tmp хавтаст хайчласан зургийг ха
+		img_file = "{}.png".format(result["word"])
+		img_file = os.path.join(tmp_path, img_file)
+
+		with open(img_file, "wb") as tmp:
 			tmp.write(base64.b64decode(img_data))
 
-		return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+		return json.dumps({"success":True}), 200, {"ContentType":"application/json"} 
 
-@app.route('/save-audio',methods = ['POST', 'GET'])
+@app.route("/save-audio",methods = ["POST", "GET"])
 def save_audio():
 
-	if request.method == 'POST':
+	if request.method == "POST":
 
 		result = request.get_json(silent=True, force=True)
 
-		filename = result['word']
-		if result['this_id']=='audioExampleInput':
-			filename += '_example'
-		filename += '.mp3'	
+		audio_data = result["audioBase64"]
 
-		with open(os.path.join(tmp_path, filename), "wb") as tmp:
-			tmp.write(base64.b64decode(result['audioBase64']))
+		audio_file = result["word"]
+		if result["this_id"]=="audioExampleInput":
+			audio_file += "_example"
+		audio_file += ".mp3"
+		audio_file = os.path.join(tmp_path, audio_file)
 
-		return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+		with open(audio_file, "wb") as tmp:
+			tmp.write(base64.b64decode(audio_data))
 
-@app.route('/read-xls',methods = ['POST', 'GET'])
+		return json.dumps({"success":True}), 200, {"ContentType":"application/json"} 
+
+@app.route("/read-xls",methods = ["POST", "GET"])
 def read_xls():
 
-	if request.method == 'POST':
+	if request.method == "POST":
 
 		result = request.get_json(silent=True, force=True)
 
-		if result['lang'] == 'Chinese':
-			SAMPLE_SPREADSHEET_ID = '14mY0zLrTJRPEJTprBen3FOqw1MTjM875qHiL_YHl0TA'
-			SAMPLE_RANGE_NAME = '新HSK5000词2!A:O'
-			
-			df = google_sheets.main(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME)
-			for index, row in df.loc[df['word'] == result['word']].iterrows():
-				return json.dumps({'success':True,'row':[row.to_dict()]}), 200, {'ContentType':'application/json'} 
-				
-		elif result['lang'] == 'English':
-			SAMPLE_SPREADSHEET_ID = '14mY0zLrTJRPEJTprBen3FOqw1MTjM875qHiL_YHl0TA'
-			SAMPLE_RANGE_NAME = '新HSK5000词2!A:O'
-			
-			df = google_sheets.main(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME)
-			for index, row in df.loc[df['word'] == result['word']].iterrows():
-				return json.dumps({'success':True,'row':[row.to_dict()]}), 200, {'ContentType':'application/json'} 
+		SPREADSHEET_ID = config[result["lang"]]["sheets"]["SPREADSHEET_ID"]
+		RANGE_NAME = config[result["lang"]]["sheets"]["RANGE_NAME"]
 
-		return json.dumps({'success':False}), 400, {'ContentType':'application/json'} 
+		df = google_sheets.main(SPREADSHEET_ID, RANGE_NAME)			
+		for index, row in df.loc[df["word"] == result["word"]].iterrows():
+			return json.dumps({"success":True,"row":[row.to_dict()]}), 200, {"ContentType":"application/json"} 
+
+		return json.dumps({"success":False}), 400, {"ContentType":"application/json"} 
 
 # mp4 бичлэгийг үүсгэх
-@app.route('/generate',methods = ['POST', 'GET'])
+@app.route("/generate",methods = ["POST", "GET"])
 def generate():
 
-	if request.method == 'POST':
-		result = request.form
-		result = dict(result)
+	if request.method == "POST":
+		result = dict(request.form)
 
-		if result['lang']=='Chinese':
+		if result["lang"]=="Chinese":
 			result = check_result_chinese(result)
 
-		today = datetime.datetime.now().strftime('%Y%m%d') 
+		result["date"] = datetime.datetime.now().strftime("%Y%m%d") 
 		
 		# Тухайн үгэнд зориулж шинэ хавтас үүсгэх
-		word_download_path = os.path.join(download_path, '%s/%s_%s' % (result['lang'], result['word'], today))
+		word_download_path = "{lang}/{word}_{date}".format(**result)
+		word_download_path = os.path.join(download_path, word_download_path)
 		if not os.path.isdir(word_download_path):
 			os.mkdir(word_download_path)
 
@@ -125,40 +117,43 @@ def generate():
 		# Дуу янзлах
 		word_audio_file, example_audio_file = generate_audio(result, word_download_path)
 		if not os.path.isfile(word_audio_file):
-			return json.dumps({'success':False, 'error':'Please input the audio file'}), 500, {'ContentType':'application/json'} 
+			return json.dumps({"success":False, "error":"Please input the audio file"}), 500, {"ContentType":"application/json"} 
 
 		# Зураг ба дууг нийлүүлж mp4 үүсгэх
 		mp4_file = combine(result, word_download_path, image_file, word_audio_file, example_audio_file)
 
-		with open(os.path.join(word_download_path, '%s.txt' % (result['word'])), 'w') as f:
+		word_file = "{}.txt".format(result["word"])
+		word_file = os.path.join(word_download_path, word_file)		
+		with open(word_file, "w") as f:
 			json.dump(result, f, ensure_ascii=False)
 
-		# json.dumps({'success':True, 'mp4':mp4_file}), 200, {'ContentType':'application/json'} 
 		return send_from_directory(word_download_path, mp4_file, as_attachment=True)
+
 
 def check_result_chinese(result):
 
-	if not result.get('pron', None):
-		result['pron'] = ''.join(ChineseTone.PinyinHelper.convertToPinyinFromSentence(result['word']))
+	if not result.get("pron", None):
+		result["pron"] = "".join(ChineseTone.PinyinHelper.convertToPinyinFromSentence(result["word"]))
 
-	result['pron'] = result['pron'].replace(' ', '') 
+	result["pron"] = result["pron"].replace(" ", "") 
 
-	if not result.get('example_pron', None):
-		result['example_pron'] = ' '.join(ChineseTone.PinyinHelper.convertToPinyinFromSentence(result['example']))
+	if not result.get("example_pron", None):
+		result["example_pron"] = " ".join(ChineseTone.PinyinHelper.convertToPinyinFromSentence(result["example"]))
 	
-	result['example_pron'] = re.sub(r'[。、！？，《》·：（）]', '', result['example_pron']) 
+	result["example_pron"] = re.sub(r"[。、！？，《》·：（）]", "", result["example_pron"]) 
 
 	return result
 
 def combine(result, word_download_path, image_file, word_audio_file, example_audio_file):
 
-	output_file = os.path.join(word_download_path, '%s.mp4' % (result['word']))
+	output_file = "{}.mp4".format(result["word"])
+	output_file = os.path.join(word_download_path, output_file)
 
 	config = {
-		'image': image_file,
-		'word_audio': word_audio_file,
-		'example_audio': example_audio_file,
-		'output': output_file,
+		"image": image_file,
+		"word_audio": word_audio_file,
+		"example_audio": example_audio_file,
+		"output": output_file,
 	}
 
 	if os.path.isfile(output_file):
@@ -189,14 +184,14 @@ def combine(result, word_download_path, image_file, word_audio_file, example_aud
 				   -pix_fmt yuv420p \
 				   {output}""".format(**config))
 
-	return output_file.split('/')[-1]
+	return output_file.split("/")[-1]
 
 def generate_audio(result, word_download_path):
 	
-	word_audio_file = os.path.join(word_download_path, '%s.mp3' % (result['word']))
-	example_audio_file = os.path.join(word_download_path, '%s_example.mp3' % (result['word']))
-	tmp_word_audio_file = os.path.join(tmp_path, '%s.mp3' % (result['word']))
-	tmp_example_audio_file = os.path.join(tmp_path, '%s_example.mp3' % (result['word']))
+	tmp_word_audio_file = os.path.join(tmp_path, "{}.mp3".format(result["word"]))
+	tmp_example_audio_file = os.path.join(tmp_path, "{}_example.mp3".format(result["word"]))
+	word_audio_file = os.path.join(word_download_path, "{}.mp3".format(result["word"]))
+	example_audio_file = os.path.join(word_download_path, "{}_example.mp3".format(result["word"]))
 
 	if os.path.isfile(tmp_word_audio_file):
 		shutil.move(tmp_word_audio_file, word_audio_file)
@@ -204,100 +199,91 @@ def generate_audio(result, word_download_path):
 		shutil.move(tmp_example_audio_file, example_audio_file)
 
 	if not os.path.isfile(word_audio_file):
-		if result['lang']=='Chinese':
-			word_audio_file, example_audio_file = generate_audio_chinese(result, word_download_path)
+		if result["lang"]=="Chinese":
+			word_audio_file = generate_audio_chinese(result, word_download_path, result["word"], "word")
+			example_audio_file = generate_audio_chinese(result, word_download_path, result["example"], "example")
 	
 	return word_audio_file, example_audio_file
 
-def generate_audio_chinese(result, word_download_path):
+def generate_audio_chinese(result, word_download_path, speech, _type):
 
-	client = AipSpeech('17300058', 'G11hfH4f7Gzu8xSKdOUi5nGz', 'GGaF2RZfQGw3GdsMSbnP9oyTG1reMeqz')
+	client = AipSpeech("17300058", "G11hfH4f7Gzu8xSKdOUi5nGz", "GGaF2RZfQGw3GdsMSbnP9oyTG1reMeqz")
 
-	word_audio_file = None
-	example_audio_file = None
+	audio_file = None
 
 	# per = random.choice([1,0,3,4,5,106,110,111,103])
 	for per in [1,0,3,5,106][:1]: #,4,110,111,103]:
 		try:
-			word_audio_file = os.path.join(word_download_path, '%s_%s_baidu.mp3' % (result['word'], per))
-			audio_result = client.synthesis(result['word'],'zh',1,{'vol':10,'spd':4,'pit':5,'per':per})
-			with open(word_audio_file, 'wb') as f:
+			audio_file = "{}_{}_{}_baidu.mp3".format(result['word'], _type, per)
+			audio_file = os.path.join(word_download_path, audio_file)
+			audio_result = client.synthesis(speech,"zh",1,{"vol":10,"spd":4,"pit":5,"per":per})
+			with open(audio_file, "wb") as f:
 				f.write(audio_result)
 		except Exception as e:
 			raise e
 
-	for per in [1,0,3,5,106][:1]: #,4,110,111,103]:
-		try:
-			example_audio_file = os.path.join(word_download_path, '%s_example_%s_baidu.mp3' % (result['word'], per))
-			audio_result = client.synthesis(result['example'],'zh',1,{'vol':10,'spd':4,'pit':5,'per':per})
-			with open(example_audio_file, 'wb') as f:
-				f.write(audio_result)
-		except Exception as e:
-			raise e
-
-	return word_audio_file, example_audio_file
+	return audio_file
 
 def generate_image(result, config, word_download_path):
 
-	tmp_tmp_file = os.path.join(tmp_path, '%s.png' % (result['word']))
-	tmp_file = os.path.join(word_download_path, '%s_tmp.png' % (result['word']))
-	image_file = os.path.join(word_download_path, '%s.png' % (result['word']))
-
-	if os.path.isfile(tmp_tmp_file):
-		shutil.move(tmp_tmp_file, tmp_file)
+	tmp_img_file = os.path.join(tmp_path, "{}.png".format(result["word"]))
+	img_file = os.path.join(word_download_path, "{}.png".format(result["word"]))
+	text_img_file = os.path.join(word_download_path, "{}_text.png".format(result["word"]))
+	
+	if os.path.isfile(tmp_img_file):
+		shutil.move(tmp_img_file, img_file)
 
 	# Хайчласан зургийг сууриар сонгох
-	img = Image.open(tmp_file)
+	img = Image.open(img_file)
 	img = img.resize((2048, 2048))
 	
 	# Зургийг сүүдэрлэх
 	enhancer = ImageEnhance.Brightness(img)
-	img = enhancer.enhance(1 - 0.01 * int(result['shadow']))
+	img = enhancer.enhance(1 - 0.01 * int(result["shadow"]))
 
 	# Зураг дээр текст хэлбэрийн агуулгыг нэмэх
 	img = add_text(result, config, img)
 
 	# Зураг дээр logo нэмэх
-	logo = Image.open('images/logo.png')
+	logo = Image.open("images/logo.png")
 	img.paste(logo, (920,1723), mask=logo)
 
 	# Зургийг сануулах
-	img.save(image_file)
+	img.save(text_img_file)
 
-	return image_file
+	return text_img_file
 
 def add_text(result, config, img):
 	
 	draw = ImageDraw.Draw(img)
 	
-	sizes = config[result['lang']]['sizes']
-	fonts = config[result['lang']]['fonts']
-	space = config[result['lang']]['default_space']
-	# spaces = config[result['lang']]['spaces']
+	sizes = config[result["lang"]]["sizes"]
+	fonts = config[result["lang"]]["fonts"]
+	space = config[result["lang"]]["default_space"]
 
-	font_word = ImageFont.truetype(fonts['word_font'], int(sizes['word_size']))
-	font_pron = ImageFont.truetype(fonts['pron_font'], int(sizes['pron_size']))
-	font_mon = ImageFont.truetype(fonts['mon_font'], int(sizes['mon_size'])) 
-	font_example_pron = ImageFont.truetype(fonts['example_pron_font'], int(sizes['example_pron_size']))
-	font_example = ImageFont.truetype(fonts['example_font'], int(sizes['example_size'])) 
-	font_example_mon = ImageFont.truetype(fonts['example_mon_font'], int(sizes['example_mon_size']))
+	font_word = ImageFont.truetype(fonts["word_font"], int(sizes["word_size"]))
+	font_pron = ImageFont.truetype(fonts["pron_font"], int(sizes["pron_size"]))
+	font_mon = ImageFont.truetype(fonts["mon_font"], int(sizes["mon_size"])) 
+	font_example_pron = ImageFont.truetype(fonts["example_pron_font"], int(sizes["example_pron_size"]))
+	font_example = ImageFont.truetype(fonts["example_font"], int(sizes["example_size"])) 
+	font_example_mon = ImageFont.truetype(fonts["example_mon_font"], int(sizes["example_mon_size"]))
 
-	if result['lang']=='Chinese':
+	if result["lang"]=="Chinese":
 		config = [
-				  (0,317,result['word'],font_word),
-				  (0,582,"[%s] /%s/" % (result['pos'],result['pron']),font_pron),
-				  (0,826,result['mon'],font_mon),
-				  (80,1253,result['example_pron'],font_example_pron),
-				  (80,1253+int(sizes['example_pron_size'])+space,result['example'],font_example),
-				  (80,1253+int(sizes['example_pron_size'])+space+int(sizes['example_size'])+space,result['example_mon'],font_example_mon)]
+				  (0,317,result["word"],font_word),
+				  (0,582,"[%s] /%s/" % (result["pos"],result["pron"]),font_pron),
+				  (0,826,result["mon"],font_mon),
+				  (80,1253,result["example_pron"],font_example_pron),
+				  (80,1253+int(sizes["example_pron_size"])+space,result["example"],font_example),
+				  (80,1253+int(sizes["example_pron_size"])+space+int(sizes["example_size"])+space,result["example_mon"],font_example_mon)]
 
-	elif result['lang']=='English':
+	elif result["lang"]=="English":
 		config = [
-				  (0,317,result['word'],font_word),
-				  (0,582,"[%s]   /%s/" % (result['pos'],result['pron']),font_pron),
-				  (0,826,result['mon'],font_mon),
-				  (80,1253,result['example'],font_example),
-				  (80,1253+int(sizes['example_pron_size'])+space,result['example_mon'],font_example_mon)]
+				  (0,317,result["word"],font_word),
+				  (0,582,"[%s]   /%s/" % (result["pos"],result["pron"]),font_pron),
+				  (0,826,result["mon"],font_mon),
+				  (80,1253,result["example"],font_example),
+				  (80,1253+int(sizes["example_pron_size"])+space,result["example_mon"],font_example_mon)]
 
 	addition = 0
 	for x, y, text, font in config:
@@ -359,5 +345,5 @@ def add_shadow(x, y, text, shadowColor, font, draw):
 	#diagnal right down
 	draw.text((x+adj, y-adj), text, font=font, fill=shadowColor)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
    app.run(debug = True)
