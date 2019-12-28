@@ -3,4 +3,8 @@ data/English/**
 data/.DS_Store
 tmp/**
 virtualenv/**
+venv/**
 app.wsgi
+token.pickle
+__pycache__/**
+*.pyc
