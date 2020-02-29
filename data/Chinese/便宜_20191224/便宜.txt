@@ -1,1 +1,0 @@
-{"lang": "Chinese", "word": "便宜", "pos": "形", "pron": "piányi", "mon": "Хямд", "example_pron": "yòu pián yi yòu hǎo wán de guó wài lǚ yóu jǐng diǎn yǒu nǎ xiē ", "example": "又便宜又好玩的国外旅游景点有哪些？", "example_mon": "Гадаадын ямар үзэсгэлэнт газрууд хямдхан бөгөөд зугаатай вэ?", "audioInput": "", "audioExampleInput": "", "shadow": "37"}

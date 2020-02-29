@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<form action="" method="post" novalidate>
+    {{ form.csrf_token }}
+    {{ form.hidden_tag() }}
+
+    <p class="wrap-input2" style="font-size: 16px;">
+        <b>{{ form.username.label }}: </b><br>
+        {{ form.username(size=32) }}
+        {% for error in form.username.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p class="wrap-input2" style="font-size: 16px;">
+        <b>{{ form.password.label }}: </b><br>
+        {{ form.password(size=32) }}
+        {% for error in form.password.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+
+    <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
+    <div class="container-contact2-form-btn">
+        <div class="wrap-contact2-form-btn">
+            <div class="contact2-form-bgbtn"></div>
+            <button class="contact2-form-btn" type="submit">
+                Нэвтрэх
+            </button> 
+        </div>
+    </div>
+</form>
+{% endblock %}

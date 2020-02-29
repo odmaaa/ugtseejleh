@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block content %}
+
+<form action="" method="post" enctype="multipart/form-data" novalidate>
+	{{ form.csrf_token }}
+	{{ form.hidden_tag() }}
+
+	<p class="wrap-input2">{{ form.word.label }}: {{ form.word() }}
+	{% for error in form.word.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+    </p>
+
+	<p class="wrap-input2">{{ form.pos.label }}: {{ form.pos() }}
+	{% for error in form.pos.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+    </p>
+
+	<p class="wrap-input2">{{ form.pron.label }}: {{ form.pron() }}
+	{% for error in form.pron.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+    </p>
+
+	<p class="wrap-input2">{{ form.mon.label }}: {{ form.mon() }}
+	{% for error in form.mon.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+    </p>
+
+	{% if 'Chinese' == current_user.language %}
+	<p class="wrap-input2">{{ form.example_pron.label }}: {{ form.example_pron() }}
+	{% for error in form.example_pron.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+    </p>
+	{% endif %}
+
+	<p class="wrap-input2">{{ form.example.label }}: {{ form.example() }}
+	{% for error in form.example.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+    </p>
+
+	<p class="wrap-input2">{{ form.example_mon.label }}: {{ form.example_mon() }}
+	{% for error in form.example_mon.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+    </p>
+
+	<p class="wrap-input2">{{ form.audio.label }}: {{ form.audio() }}
+	{% for error in form.audio.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+    </p>
+
+	<p class="wrap-input2">{{ form.audio_example.label }}: {{ form.audio_example() }}
+	{% for error in form.audio_example.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+    </p>
+
+	<p class="wrap-input2">{{ form.image.label }}: {{ form.image() }}
+	{% for error in form.image.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+    </p>
+   
+	<div id="canvas-container">
+	    <canvas id="canvas"></canvas>
+		<input type="button" id="btnCrop" value="Crop" style="border: 1px solid gray;font-size: 20px;" /> 
+	</div>
+	{{ form.cropped_image() }}
+	
+	<div id="result"></div><br>
+
+	<p>{{ form.shadow.label }}: 
+		{{ form.shadow(**{'type':'number','min':'1','max':'100','value':'37',
+				'oninput':'this.form.shadowRange.value:this.value;imageBrightness(this.value)','style':'color: #666666;'}) }}
+
+		<input type="range" name="shadowRange" min="1" max="100" value="37" oninput="this.form.shadow.value=this.value;imageBrightness(this.value)"  class="wrap-input2"/>
+	</p>
+
+ 	<div id=text-result style="background-color: lightblue"></div>
+
+	<p>Caption: <textarea id="caption" style="width: 100%;height: 100px;"></textarea></p>
+
+	<div class="container-contact2-form-btn">
+		<div class="wrap-contact2-form-btn">
+			<div class="contact2-form-bgbtn"></div>
+			<button class="contact2-form-btn" type="submit">
+				Submit
+			</button> 
+		</div>
+	</div>
+
+</form>
+
+{% endblock %}

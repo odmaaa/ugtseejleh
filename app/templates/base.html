@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% if title %}
+    <title>{{ title }}</title> 
+    {% else %}
+    <title>Үг цээжилэх</title> 
+    {% endif %}
+
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.ico') }}"/>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/animate/animate.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/css-hamburgers/hamburgers.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/select2/select2.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/cropper.css') }}">
+	<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
+
+</head>
+<body>
+
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+	  <div class="collapse navbar-collapse">
+	    <!-- <div class="navbar-header">
+	      <a class="navbar-brand" href="#">Үг цээжилэх</a>
+	    </div> -->
+
+		<ul class="navbar-nav mr-auto">
+			<li class="nav-item active"><a class="nav-link" href="#">Нүүр</a></li>
+		</ul>
+
+		{% if current_user.is_anonymous %}
+		<ul class="nav navbar-nav ml-auto">
+			<li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}"><span class="glyphicon glyphicon-user"></span>Бүртгүүлэх</a></li>
+			<li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}"><span class="glyphicon glyphicon-log-in"></span>Нэвтрэх</a></li>
+		</ul>
+	    {% else %}
+		<ul class="nav navbar-nav ml-auto">
+	    	<li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}" ><span class="glyphicon glyphicon-user"></span>{{ current_user.username }}</a></li>
+	    	<li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}" ><span class="glyphicon glyphicon-log-out"></span>Гарах</a></li>
+	 	</ul>
+	    {% endif %}
+
+	  </div>
+	</nav>
+
+	<div class="bg-contact2" style="background-image: url({{ url_for('static', filename='images/bg-01.jpg') }});">
+		<div class="container-contact2">
+			<div class="wrap-contact2">
+
+			    {% if title %}
+			    <span class="contact2-form-title">{{ title }}</span>
+			    {% else %}
+			    <span class="contact2-form-title">Үг цээжилэх</span>
+			    {% endif %}
+
+				{% block content %}{% endblock %}
+
+			</div>
+		</div>
+	</div>	
+	<script src="{{ url_for('static', filename='vendor/jquery/jquery.js') }}"></script>
+	<script src="{{ url_for('static', filename='vendor/jquery/jquery-3.2.1.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='vendor/bootstrap/js/popper.js') }}"></script>
+	<script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='vendor/select2/select2.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/cropper.js') }}"></script>
+	<script>
+
+	var canvas  = $("#canvas"),
+	context = canvas.get(0).getContext("2d"),
+	$result = $('#result');
+
+	$('#image').on( 'change', function(){
+		if (this.files && this.files[0]) {
+			if ( this.files[0].type.match(/^image\//) ) {
+				var reader = new FileReader();
+				reader.onload = function(evt) {
+					var img = new Image();
+					img.onload = function() {
+
+						context.canvas.height = img.height;
+						context.canvas.width  = img.width;
+
+						context.drawImage(img, 0, 0);
+						var cropper = canvas.cropper({ aspectRatio: 4 / 4 });
+
+						$('#btnCrop').click(function() {
+							// Get a string base 64 data url
+							var croppedImageDataURL = canvas.cropper('getCroppedCanvas').toDataURL("image/png"); 
+							var shadow = 100 - $("input[name='shadow']").val();
+
+							$("#image").attr('src', croppedImageDataURL);
+				        	$("#canvas-container").hide();
+				        	$result.empty();
+				        	$result.append( $('<img>').attr('src', croppedImageDataURL)).attr('align', 'middle').attr('id', 'croppedImage').css("filter", 'brightness('+shadow+'%)');
+				        	$('input[name="cropped_image"]').val(croppedImageDataURL);
+						});
+					};
+					img.src = evt.target.result;
+				};
+				reader.readAsDataURL(this.files[0]);
+			}
+			else {
+				alert("Invalid file type! Please select an image file.");
+			}
+		}
+		else {
+			alert('No file(s) selected.');
+		}
+	});
+
+	function imageBrightness(shadow){
+		shadow = 100-shadow;
+		$('#croppedImage').css("filter", 'brightness('+shadow+'%)');
+	}
+
+	</script>
+</body>
+</html>
