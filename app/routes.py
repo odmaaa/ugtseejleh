@@ -76,28 +76,48 @@ def index():
 		session['username'] = user.username
 
 	if request.method == "GET" and request.args.get('word'):
-		this = Word.query.filter_by(username=session['username'],word=request.args.get('word')).order_by(Word.id.desc())
-		if this.first():
-			form = WordForm(obj=this.first())
+		this = Word.query.filter_by(username=session['username'],word=request.args.get('word')).order_by(Word.id.desc()).first()
+		if this:
+			form = WordForm(obj=this)
 		else:
 			form = WordForm(word=request.args.get('word'))
 
 	else:
 		form = WordForm(CombinedMultiDict((request.files, request.form)))
 		if form.validate_on_submit():
-			word = Word(
-				language=session['language'],
-				username=session['username'],
-				datetime=datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
-				word=form.word.data,
-				pos=form.pos.data,
-				pron=form.pron.data,
-				mon=form.mon.data,
-				example_pron=form.example_pron.data,
-				example=form.example.data,
-				example_mon=form.example_mon.data)
-			db.session.add(word)
-			db.session.commit()
+
+			this = Word.query.filter_by(username=session['username'],word=form.word.data).order_by(Word.id.desc()).first()
+			if this:
+				word = this
+				word.language=session['language']
+				word.username=session['username']
+				word.datetime=datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+				word.word=form.word.data
+				word.pos=form.pos.data
+				word.pron=form.pron.data
+				word.mon=form.mon.data
+				word.example_pron=form.example_pron.data
+				word.example=form.example.data
+				word.example_mon=form.example_mon.data
+
+				db.session.flush()
+				db.session.commit()
+
+			else:
+				word = Word(
+					language=session['language'],
+					username=session['username'],
+					datetime=datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
+					word=form.word.data,
+					pos=form.pos.data,
+					pron=form.pron.data,
+					mon=form.mon.data,
+					example_pron=form.example_pron.data,
+					example=form.example.data,
+					example_mon=form.example_mon.data)
+				
+				db.session.add(word)
+				db.session.commit()
 
 			path, mp4_file = process.main(form)
 
