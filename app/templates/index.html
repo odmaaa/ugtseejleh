@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
 
-<form action="" method="post" enctype="multipart/form-data" novalidate>
+<form action="" method="post" enctype="multipart/form-data" id="main-form" novalidate>
 	{{ form.csrf_token }}
 	{{ form.hidden_tag() }}
 
-	<p class="wrap-input2">{{ form.word.label }}: {{ form.word() }}
+	<p class="wrap-input2">{{ form.word.label }}: {{ form.word(onchange="window.location.href=window.location.origin+'?word='+this.value") }}
 	{% for error in form.word.errors %}
     <span style="color: red;">[{{ error }}]</span>
     {% endfor %}
@@ -29,6 +29,12 @@
     {% endfor %}
     </p>
 
+	<p class="wrap-input2">{{ form.example.label }}: {{ form.example() }}
+	{% for error in form.example.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+    </p>
+
 	{% if 'Chinese' == current_user.language %}
 	<p class="wrap-input2">{{ form.example_pron.label }}: {{ form.example_pron() }}
 	{% for error in form.example_pron.errors %}
@@ -36,13 +42,7 @@
     {% endfor %}
     </p>
 	{% endif %}
-
-	<p class="wrap-input2">{{ form.example.label }}: {{ form.example() }}
-	{% for error in form.example.errors %}
-    <span style="color: red;">[{{ error }}]</span>
-    {% endfor %}
-    </p>
-
+	
 	<p class="wrap-input2">{{ form.example_mon.label }}: {{ form.example_mon() }}
 	{% for error in form.example_mon.errors %}
     <span style="color: red;">[{{ error }}]</span>

@@ -117,6 +117,59 @@
 		$('#croppedImage').css("filter", 'brightness('+shadow+'%)');
 	}
 
+	$('input[name="mon"], input[name="example_mon"]').on( 'change', function(){
+		var str = $(this).val();
+		var res = str.split(" ");
+
+		$.ajax({
+		  type: "POST",
+		  url: "spellcheck",
+		  data: {text: str},
+		  dataType: 'json',
+		  success: function(json){
+		  	if (json.success){
+				alert("Дүрмийн алдаа олдлоо: " + JSON.stringify(json.mistakes));
+		  	}
+		  }
+		});
+	})
+
+	$('input[name="mon"], input[name="example_mon"]').on( 'change', function(){
+		var str = $(this).val();
+		var res = str.split(" ");
+
+		$.ajax({
+		  type: "POST",
+		  url: "spellcheck",
+		  data: {text: str},
+		  dataType: 'json',
+		  success: function(json){
+		  	if (json.success){
+				alert("Дүрмийн алдаа олдлоо: " + JSON.stringify(json.mistakes));
+		  	}
+		  }
+		});
+	})
+
+	document.getElementById("main-form").addEventListener("submit", submitTrigger);
+	function submitTrigger() {
+		var caption = "";
+		caption += $('input[name="word"]').val();
+		caption += " [" + $('input[name="pos"]').val() + "] ";
+		caption += $('input[name="pron"]').val();
+		caption += "\n";
+		caption += $('input[name="mon"]').val();
+		caption += "\n";
+		caption += "\n";
+		caption += "#үгцээжлэх #өглөөнийүг #хятадхэл #vocabulary #morningword #chinese #单词 #早上单词 #" + $('input[name="word"]').val();
+		caption += "\n";
+		caption += "#үгцээжлэх #өдрийнүг #хятадхэл #vocabulary #afternoonword #chinese #单词 #中午单词 #" + $('input[name="word"]').val();
+		caption += "\n";
+		caption += "#үгцээжлэх #оройныүг #хятадхэл #vocabulary #eveningword #chinese #单词 #晚上单词 #" + $('input[name="word"]').val();
+
+		$("#caption").val(caption);
+	}
+
 	</script>
 </body>
 </html>

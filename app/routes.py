@@ -10,6 +10,8 @@ from app.forms import LoginForm, RegistrationForm, WordForm
 from wtforms import SelectField
 from app.models import User, Word
 
+import json
+import requests
 import datetime
 from config import *
 
@@ -73,31 +75,54 @@ def index():
 		session['language'] = user.language
 		session['username'] = user.username
 
-	form = WordForm(CombinedMultiDict((request.files, request.form)))
+	if request.method == "GET" and request.args.get('word'):
+		this = Word.query.filter_by(username=session['username'],word=request.args.get('word')).order_by(Word.id.desc())
+		if this.first():
+			form = WordForm(obj=this.first())
+		else:
+			form = WordForm(word=request.args.get('word'))
 
-	if form.validate_on_submit():
+	else:
+		form = WordForm(CombinedMultiDict((request.files, request.form)))
+		if form.validate_on_submit():
+			word = Word(
+				language=session['language'],
+				username=session['username'],
+				datetime=datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
+				word=form.word.data,
+				pos=form.pos.data,
+				pron=form.pron.data,
+				mon=form.mon.data,
+				example_pron=form.example_pron.data,
+				example=form.example.data,
+				example_mon=form.example_mon.data)
+			db.session.add(word)
+			db.session.commit()
 
-		today = datetime.datetime.now().strftime('%Y-%m-%d %H:%M') 
+			path, mp4_file = process.main(form)
 
-		word = Word(
-			language=session['language'],
-			username=session['username'],
-			datetime=today,
-			word=form.word.data,
-			pos=form.pos.data,
-			pron=form.pron.data,
-			mon=form.mon.data,
-			example_pron=form.example_pron.data,
-			example=form.example.data,
-			example_mon=form.example_mon.data)
-		db.session.add(word)
-		db.session.commit()
-
-		path, mp4_file = process.main(form)
-
-		return send_from_directory(path, mp4_file, as_attachment=True)
+			return send_from_directory(path, mp4_file, as_attachment=True)
 
 	return render_template('index.html', title='Үг цээжилэх', form=form)
+
+@app.route('/spellcheck', methods=['GET', 'POST'])
+@login_required
+def spellcheck():
+
+	if request.method == "POST":
+		url = "http://spellcheck.gov.mn/scripts/tiny_mce/plugins/spellchecker/rpc.php"
+		data = {
+			'id': 'c0',
+			'method': 'checkWords',
+			'params': ['mn', request.form["text"].split()]
+		}
+		req = requests.post(url, data=json.dumps(data))
+		res = json.loads(req.text)
+		mistakes = res.get('result', [])
+		if mistakes:
+			return json.dumps({"success":True, "mistakes":mistakes}), 200, {"ContentType":"application/json"} 
+		else:
+			return json.dumps({"success":False}), 200, {"ContentType":"application/json"} 
 
 
 if __name__ == '__main__':

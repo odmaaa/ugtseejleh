@@ -104,7 +104,7 @@ def get_mp4(file_config):
 				   -i concat:{word_audio}|{example_audio} \
 				   -crf 1 \
 				   -t 10 \
-				   -s 2048x2048 \
+				   -s 1920x1920 \
 				   -vcodec libx264 \
 				   -acodec aac \
 				   -pix_fmt yuv420p \
@@ -116,7 +116,7 @@ def get_mp4(file_config):
 				   -i concat:{word_audio}|{word_audio}|{word_audio} \
 				   -crf 1 \
 				   -t 10 \
-				   -s 2048x2048 \
+				   -s 1920x1920 \
 				   -vcodec libx264 \
 				   -acodec aac \
 				   -pix_fmt yuv420p \
@@ -240,8 +240,8 @@ def add_text(result, values, img):
 					addition += font.size + 13
 		else:
 			w, h = draw.textsize(text, font=font)
-			add_shadow((2048 - w)/2, y+ addition, text, (112,112,112), font, draw)
-			draw.text(((2048 - w)/2, y+ addition), text, (255,255,255), font=font)
+			add_shadow((2048 - w)/2, y + addition, text, (112,112,112), font, draw)
+			draw.text(((2048 - w)/2, y + addition), text, (255,255,255), font=font)
 		
 		if x==0: 
 			addition = 0
