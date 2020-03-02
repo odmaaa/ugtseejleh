@@ -88,6 +88,7 @@ ul, li {
 input {
 	outline: none;
 	border: none;
+  width: 100%;
 }
 
 textarea {
