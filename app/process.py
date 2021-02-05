@@ -47,6 +47,7 @@ def main(result):
 
 	# Зураг ба дууг нийлүүлж mp4 үүсгэх
 	mp4_file = get_mp4(file_config)
+	# mp4_file = image_file
 
 	return word_download_path, mp4_file
 
@@ -212,24 +213,20 @@ def add_text(result, values, img):
 
 		w, h = draw.textsize(text, font=font)
 
-		cnt = 0
-		n_letters = 70
-		texts = textwrap.wrap(text, width=(n_letters))
-		while (w>(2048-80*2) or len(texts)>2) and cnt<500:
-			texts = textwrap.wrap(text, width=(n_letters))
-			w, h = draw.textsize(texts[0], font=font)
-			n_letters -= 1
-			cnt += 1
-
-		last_w, last_h = draw.textsize(texts[-1], font=font)
-		if last_w<300:
-			n_size = size
-			w, h = draw.textsize(text, font=font)
-			while w>(2048-80*2):
-				font = ImageFont.truetype(font_file, n_size)
-				w, h = draw.textsize(text, font=font)
-				n_size -= 1
+		# Pron-iig 1 murund bichne 
+		if text==result.get('example_pron'):
+			size = set_text_size(draw, font, text, font_file, size)
+			font = ImageFont.truetype(font_file, size)
 			texts = [text]
+
+		else:
+			n_letters = set_text_lenght(draw, font, text, font_file, size)
+			texts = textwrap.wrap(text, width=(n_letters))
+			last_w, last_h = draw.textsize(texts[-1], font=font)
+			if last_w<300:
+				size = set_text_size(draw, font, text, font_file, size)
+				font = ImageFont.truetype(font_file, size)
+				texts = [text]
 
 		if len(texts)>1:
 			for cnt, t in enumerate(texts):
@@ -247,6 +244,31 @@ def add_text(result, values, img):
 			addition = 0
 
 	return img
+
+
+def set_text_size(draw, font, text, font_file, size):
+	n_size = size
+	w, h = draw.textsize(text, font=font)
+	while w>(2048-80*2):
+		font = ImageFont.truetype(font_file, n_size)
+		w, h = draw.textsize(text, font=font)
+		n_size -= 1
+
+	return n_size
+
+
+def set_text_lenght(draw, font, text, font_file, n_letters=70, n_lenght=2):
+	texts = textwrap.wrap(text, width=(n_letters))
+	w, h = draw.textsize(texts[0], font=font)
+	cnt = 0
+	while cnt<500 and (w>(2048-80*2) or len(texts)>n_lenght):
+		texts = textwrap.wrap(text, width=(n_letters))
+		w, h = draw.textsize(texts[0], font=font)
+		n_letters -= 1
+		cnt += 1
+
+	return n_letters
+
 
 def add_shadow(x, y, text, shadowColor, font, draw):
 
